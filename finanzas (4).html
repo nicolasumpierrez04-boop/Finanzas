@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mis Finanzas">
+<meta name="theme-color" content="#0f1117">
+<title>Mis Finanzas</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f1117;--bg2:#181c27;--bg3:#1e2236;--bg4:#252a40;
+  --border:#2e3450;--border2:#3d4566;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555d7a;
+  --green:#22c77a;--green2:#16a05f;--green-bg:#0d2a1e;
+  --red:#f04f55;--red-bg:#2a0f10;
+  --blue:#4d8ef0;--blue-bg:#0f1e3a;
+  --amber:#f0a844;--amber-bg:#2a1e0a;
+  --purple:#9b72f0;
+  --teal:#2dd4bf;
+  --radius:12px;--radius-sm:8px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  font-family:'DM Sans',sans-serif;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-size:14px;display:flex;flex-direction:column}
+.nav-top{display:flex;align-items:center;gap:4px;padding:12px 16px;padding-top:calc(12px + var(--safe-top));background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
+.nav-logo{font-size:15px;font-weight:600;color:var(--green);margin-right:10px;white-space:nowrap;font-family:'DM Mono',monospace}
+.nav-sub{font-size:9px;color:var(--text3);display:block;letter-spacing:.5px}
+.nav-top-btn{padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;white-space:nowrap;transition:all .2s;background:transparent;color:var(--text2)}
+.nav-top-btn.active{background:var(--bg4);color:var(--text);border:1px solid var(--border2)}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.nav-bottom{display:none;background:var(--bg2);border-top:1px solid var(--border);padding-bottom:var(--safe-bottom);flex-shrink:0}
+.nav-bottom-inner{display:flex;justify-content:space-around;padding:8px 0}
+.nb-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:9px;font-family:'DM Sans',sans-serif;font-weight:500;min-width:48px;transition:color .2s}
+.nb-btn.active{color:var(--green)}
+.nb-icon{font-size:18px;line-height:1}
+.page{display:none;padding:16px;max-width:700px;margin:0 auto;padding-bottom:24px}
+.page.active{display:block}
+h2{font-size:18px;font-weight:600;margin-bottom:16px;color:var(--text)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.card-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.card-value{font-size:19px;font-weight:600;font-family:'DM Mono',monospace}
+.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.amber{color:var(--amber)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row.triple{grid-template-columns:1fr 1fr 1fr}
+.form-row.full{grid-template-columns:1fr}
+label{display:block;font-size:11px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+input,select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--blue)}
+select option{background:var(--bg3)}
+.btn{padding:10px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .15s;min-height:40px}
+.btn-primary{background:var(--green);color:#000}
+.btn-primary:active{background:var(--green2)}
+.btn-danger{background:transparent;border:1px solid var(--red);color:var(--red);padding:5px 9px;font-size:12px;min-height:28px}
+.btn-secondary{background:var(--bg4);border:1px solid var(--border2);color:var(--text)}
+.btn-sm{padding:6px 12px;font-size:12px;min-height:32px}
+.list{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.list-header{display:grid;padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+.list-row{display:grid;padding:11px 14px;border-bottom:1px solid var(--border);align-items:center}
+.list-row:last-child{border-bottom:none}
+.gv-header,.gv-row{grid-template-columns:48px 1fr 86px 32px}
+.gf-header,.gf-row{grid-template-columns:1fr 86px 32px}
+.tc-header,.tc-row{grid-template-columns:1fr 96px 32px}
+.ing-header,.ing-row{grid-template-columns:48px 1fr 86px 32px}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.panel-title{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--text)}
+.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.chart-wrap canvas{max-height:200px}
+.mes-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.mes-bar h2{margin:0}
+.mes-bar select{width:auto;min-width:130px;padding:8px 10px}
+.quick-add{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.quick-add-title{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text)}
+.ingreso-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.crypto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:12px}
+.crypto-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.prex-box{background:var(--bg2);border:1px solid var(--purple);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.empty{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+
+/* SYNC INDICATOR */
+.sync-bar{display:flex;align-items:center;gap:6px;padding:6px 16px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:11px;color:var(--text3);flex-shrink:0}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.sync-dot.ok{background:var(--green)}
+.sync-dot.loading{background:var(--amber);animation:pulse 1s infinite}
+.sync-dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 18px;font-size:13px;color:var(--text);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+@media(max-width:600px){
+  .nav-top{display:none}
+  .nav-bottom{display:block}
+  .form-row.triple{grid-template-columns:1fr 1fr}
+  .form-row.triple .full-mobile{grid-column:1/-1}
+  .cards{grid-template-columns:1fr 1fr}
+  .ingreso-box{grid-template-columns:1fr}
+  .crypto-grid{grid-template-columns:1fr 1fr}
+}
+@media(min-width:601px){
+  .nav-bottom{display:none}
+  .nav-top{display:flex}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav-top">
+  <div style="margin-right:12px;flex-shrink:0">
+    <span class="nav-logo">$/ Mis Finanzas</span>
+    <span class="nav-sub">control financiero personal</span>
+  </div>
+  <button class="nav-top-btn active" onclick="showPage('dashboard',this)">Dashboard</button>
+  <button class="nav-top-btn" onclick="showPage('variables',this)">Gastos Diarios</button>
+  <button class="nav-top-btn" onclick="showPage('fijos',this)">Gastos Fijos</button>
+  <button class="nav-top-btn" onclick="showPage('tarjetas',this)">Tarjetas</button>
+  <button class="nav-top-btn" onclick="showPage('inversiones',this)">Inversiones</button>
+  <button class="nav-top-btn" onclick="showPage('ingresos',this)">Ingresos</button>
+  <div style="flex:1"></div>
+  <button class="nav-top-btn" onclick="showPage('ajustes',this)" style="color:var(--text3)">⚙</button>
+</nav>
+
+<div class="sync-bar">
+  <div class="sync-dot" id="sync-dot"></div>
+  <span id="sync-txt">Conectando con Google Sheets...</span>
+</div>
+
+<div class="content">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:11px;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px">control financiero</div>
+        <h2 style="margin:0;font-size:22px">Mis Finanzas</h2>
+      </div>
+      <select id="dash-mes" onchange="renderDashboard()" style="width:auto;min-width:130px;padding:8px 10px"></select>
+    </div>
+    <div class="cards" id="dash-cards"></div>
+    <div class="chart-wrap">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Gastos variables por categoría</div>
+      <canvas id="chartCat"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Evolución mensual</div>
+      <canvas id="chartMes"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Gastos fijos del mes</div>
+      <div id="dash-fijos-lista"></div>
+    </div>
+  </div>
+
+  <!-- GASTOS VARIABLES -->
+  <div id="page-variables" class="page">
+    <div class="mes-bar">
+      <h2>Gastos diarios</h2>
+      <select id="gv-mes" onchange="renderGastosVar()"></select>
+    </div>
+    <div class="quick-add">
+      <div class="quick-add-title">Agregar gasto</div>
+      <div class="form-row triple">
+        <div class="full-mobile" style="grid-column:1/-1">
+          <label>Categoría</label>
+          <select id="gv-cat">
+            <option>Alimentación</option><option>Supermercado</option>
+            <option>Comer afuera</option><option>Cena/Sofi</option>
+            <option>Juntada amigos</option><option>Auto</option>
+            <option>Transporte</option><option>Barbería</option>
+            <option>Farmacia</option><option>Ocio</option>
+            <option>Ropa</option><option>Salud</option>
+            <option>Tecnología</option><option>Educación</option>
+            <option>Suscripción</option><option>Otro</option>
+          </select>
+        </div>
+        <div><label>Monto ($UY)</label><input type="number" id="gv-monto" placeholder="0" inputmode="numeric"></div>
+        <div><label>Fecha</label><input type="date" id="gv-fecha"></div>
+      </div>
+      <div class="form-row full" style="margin-bottom:10px">
+        <div><label>Comentario (opcional)</label><input type="text" id="gv-comentario" placeholder="Ej: Devoto, nafta..."></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="addGastoVar()">+ Agregar gasto</button>
+    </div>
+    <div id="gv-resumen-cats" style="margin-bottom:16px"></div>
+    <div class="list">
+      <div class="list-header gv-header"><span>Fecha</span><span>Detalle</span><span style="text-align:right">Monto</span><span></span></div>
+      <div id="gv-list"></div>
+    </div>
+  </div>
+
+  <!-- GASTOS FIJOS -->
+  <div id="page-fijos" class="page">
+    <div class="mes-bar">
+      <h2>Gastos fijos</h2>
+      <select id="gf-mes" onchange="renderGastosFijos()"></select>
+    </div>
+    <div class="ingreso-box">
+      <div><div class="card-label">Ingresos del mes</div><div id="gf-ing-val" class="card-value green">$0</div></div>
+      <div><div class="card-label">Total fijos</div><div id="gf-total-val" class="card-value amber">$0</div></div>
+      <div><div class="card-label">Saldo proyectado</div><div id="gf-saldo-val" class="card-value">$0</div></div>
+    </div>
+    <div class="quick-add">
+      <div class="quick-add-title">Agregar ítem fijo</div>
+      <div class="form-row">
+        <div><label>Concepto</label><input type="text" id="gf-concepto" placeholder="Ej: Alquiler"></div>
+        <div><label>Monto ($UY)</label><input type="number" id="gf-monto" placeholder="0" inputmode="numeric"></div>
+      </div>
+      <div class="form-row full" style="margin-bottom:10px">
+        <div><label>Categoría</label>
+          <select id="gf-cat">
+            <option>Vivienda</option><option>Servicios</option><option>Auto</option>
+            <option>Tarjeta crédito</option><option>Salud/Gym</option>
+            <option>Entretenimiento</option><option>Cuotas</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="addGastoFijo()">+ Agregar ítem</button>
+    </div>
+    <div class="list">
+      <div class="list-header gf-header"><span>Concepto</span><span style="text-align:right">Monto</span><span></span></div>
+      <div id="gf-list"></div>
+    </div>
+  </div>
+
+  <!-- TARJETAS -->
+  <div id="page-tarjetas" class="page">
+    <div class="mes-bar">
+      <h2>Tarjetas de crédito</h2>
+      <select id="tc-mes" onchange="renderTarjetas()"></select>
+    </div>
+    <div class="cards" id="tc-summary"></div>
+    <div class="panel" style="border-color:#c8a850">
+      <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="background:#c8a850;color:#000;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px">ITAU</span>
+          <span id="tc-itau-total" style="font-family:'DM Mono',monospace;color:var(--amber);font-size:14px">$0</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="toggleAddTC('itau')">+ Agregar</button>
+      </div>
+      <div id="add-tc-itau" style="display:none;margin-bottom:14px;background:var(--bg3);border-radius:var(--radius-sm);padding:12px">
+        <div class="form-row triple">
+          <div><label>Concepto</label><input type="text" id="tc-itau-concepto" placeholder="Ej: Netflix"></div>
+          <div><label>Monto ($UY)</label><input type="number" id="tc-itau-monto" placeholder="0" inputmode="numeric"></div>
+          <div><label>Cuotas (ej: 2/6)</label><input type="text" id="tc-itau-cuotas" placeholder="1/1"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="addTC('itau')">Guardar</button>
+      </div>
+      <div class="list" style="margin-bottom:0">
+        <div class="list-header tc-header"><span>Concepto</span><span style="text-align:right">Monto</span><span></span></div>
+        <div id="tc-itau-list"></div>
+      </div>
+    </div>
+    <div class="panel" style="border-color:#1464a0">
+      <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="background:#1464a0;color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px">BBVA</span>
+          <span id="tc-bbva-total" style="font-family:'DM Mono',monospace;color:var(--blue);font-size:14px">$0</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="toggleAddTC('bbva')">+ Agregar</button>
+      </div>
+      <div id="add-tc-bbva" style="display:none;margin-bottom:14px;background:var(--bg3);border-radius:var(--radius-sm);padding:12px">
+        <div class="form-row triple">
+          <div><label>Concepto</label><input type="text" id="tc-bbva-concepto" placeholder="Ej: Gym"></div>
+          <div><label>Monto ($UY)</label><input type="number" id="tc-bbva-monto" placeholder="0" inputmode="numeric"></div>
+          <div><label>Cuotas (ej: 2/6)</label><input type="text" id="tc-bbva-cuotas" placeholder="1/1"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="addTC('bbva')">Guardar</button>
+      </div>
+      <div class="list" style="margin-bottom:0">
+        <div class="list-header tc-header"><span>Concepto</span><span style="text-align:right">Monto</span><span></span></div>
+        <div id="tc-bbva-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVERSIONES -->
+  <div id="page-inversiones" class="page">
+    <h2>Inversiones</h2>
+    <div class="panel">
+      <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Criptomonedas</span>
+        <button class="btn btn-secondary btn-sm" onclick="toggleAddCrypto()">+ Agregar</button>
+      </div>
+      <div id="add-crypto-form" style="display:none;margin-bottom:14px">
+        <div class="form-row triple">
+          <div><label>Símbolo (ej: BTC)</label><input type="text" id="cry-sym" placeholder="BTC" style="text-transform:uppercase"></div>
+          <div><label>Cantidad</label><input type="number" id="cry-qty" placeholder="0.05" step="any" inputmode="decimal"></div>
+          <div><label>Precio compra (USD)</label><input type="number" id="cry-buy" placeholder="0" step="any" inputmode="decimal"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="addCrypto()">Guardar cripto</button>
+      </div>
+      <div id="crypto-grid" class="crypto-grid"></div>
+      <div id="crypto-total" style="text-align:right;font-size:12px;color:var(--text2);margin-top:4px"></div>
+    </div>
+    <div class="prex-box">
+      <div class="panel-title" style="color:var(--purple)">Inversión Violeta — Prex</div>
+      <div class="form-row triple">
+        <div><label>Capital ($UY)</label><input type="number" id="prex-capital" placeholder="0" inputmode="numeric" oninput="savePrex()"></div>
+        <div><label>Rend. mensual (%)</label><input type="number" id="prex-tasa" placeholder="1.5" step="0.01" inputmode="decimal" oninput="savePrex()"></div>
+        <div><label>Meses acumulados</label><input type="number" id="prex-meses" placeholder="1" min="1" inputmode="numeric" oninput="savePrex()"></div>
+      </div>
+      <div id="prex-resultado" class="cards" style="margin-top:8px;margin-bottom:0"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Ahorro en efectivo / cuenta</div>
+      <div class="form-row">
+        <div><label>Monto ($UY)</label><input type="number" id="ahorro-uy" placeholder="0" inputmode="numeric" oninput="saveAhorro()"></div>
+        <div><label>Monto (USD)</label><input type="number" id="ahorro-usd" placeholder="0" inputmode="decimal" oninput="saveAhorro()"></div>
+      </div>
+      <div id="ahorro-total" style="font-size:13px;color:var(--text2);margin-top:4px"></div>
+    </div>
+  </div>
+
+  <!-- INGRESOS -->
+  <div id="page-ingresos" class="page">
+    <div class="mes-bar">
+      <h2>Ingresos</h2>
+      <select id="ing-mes" onchange="renderIngresos()"></select>
+    </div>
+    <div class="quick-add">
+      <div class="quick-add-title">Registrar ingreso</div>
+      <div class="form-row">
+        <div><label>Concepto</label><input type="text" id="ing-concepto" placeholder="Sueldo, freelance..."></div>
+        <div><label>Monto ($UY)</label><input type="number" id="ing-monto" placeholder="0" inputmode="numeric"></div>
+      </div>
+      <div class="form-row full" style="margin-bottom:10px">
+        <div><label>Fecha</label><input type="date" id="ing-fecha"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="addIngreso()">+ Agregar ingreso</button>
+    </div>
+    <div class="list">
+      <div class="list-header ing-header"><span>Fecha</span><span>Concepto</span><span style="text-align:right">Monto</span><span></span></div>
+      <div id="ing-list"></div>
+    </div>
+    <div id="ing-total" style="text-align:right;font-size:14px;font-weight:600;padding:8px 14px"></div>
+  </div>
+
+  <!-- AJUSTES -->
+  <div id="page-ajustes" class="page">
+    <h2>Ajustes</h2>
+    <div class="panel">
+      <div class="panel-title">Crear nuevo mes</div>
+      <div class="form-row">
+        <div><label>Año</label><select id="nuevo-mes-anio"></select></div>
+        <div><label>Mes</label>
+          <select id="nuevo-mes-mes">
+            <option value="01">Enero</option><option value="02">Febrero</option>
+            <option value="03">Marzo</option><option value="04">Abril</option>
+            <option value="05">Mayo</option><option value="06">Junio</option>
+            <option value="07">Julio</option><option value="08">Agosto</option>
+            <option value="09">Septiembre</option><option value="10">Octubre</option>
+            <option value="11">Noviembre</option><option value="12">Diciembre</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="crearMes()">+ Crear mes</button>
+      <div id="nuevo-mes-msg" style="margin-top:10px;font-size:13px"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Estado de sincronización</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Todos los datos se guardan automáticamente en tu Google Sheet. Podés acceder desde cualquier dispositivo.</p>
+      <button class="btn btn-secondary" onclick="reloadAllData()">↻ Recargar datos del Sheet</button>
+    </div>
+  </div>
+
+</div>
+
+<nav class="nav-bottom">
+  <div class="nav-bottom-inner">
+    <button class="nb-btn active" onclick="showPage('dashboard',this)"><span class="nb-icon">◈</span><span>Inicio</span></button>
+    <button class="nb-btn" onclick="showPage('variables',this)"><span class="nb-icon">＋</span><span>Gastos</span></button>
+    <button class="nb-btn" onclick="showPage('fijos',this)"><span class="nb-icon">◻</span><span>Fijos</span></button>
+    <button class="nb-btn" onclick="showPage('tarjetas',this)"><span class="nb-icon">▣</span><span>Tarjetas</span></button>
+    <button class="nb-btn" onclick="showPage('ajustes',this)"><span class="nb-icon">⚙</span><span>Ajustes</span></button>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+const API = 'https://script.google.com/macros/s/AKfycbyqILcihUEFa52kIxpX94Ir2E6InSrWa6V98X11az_EogRFNXEH84sVx8xJX9-JpOAroA/exec';
+
+// ═══════════════════════════════════════════
+// IN-MEMORY STATE (cache del Sheet)
+// ═══════════════════════════════════════════
+let state = {
+  gastosVar: [],
+  gastosFijos: {},
+  tarjetas: {},
+  ingresos: {},
+  cryptos: [],
+  inversiones: { prex: { capital: 0, tasa: 1.5, meses: 1 }, ahorro: { uy: 0, usd: 0 } }
+};
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+const CATS_COLORS = ['#22c77a','#4d8ef0','#f0a844','#f04f55','#9b72f0','#2dd4bf','#f07040','#60d0e0','#e060a0','#a0c840','#c0a060','#8080f0','#f0d040','#40e080','#c060c0'];
+const fmt = n => Math.round(n).toLocaleString('es-UY');
+const fmtUSD = n => Number(n).toLocaleString('es-UY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const mesKey = d => String(d).slice(0, 7);
+const todayStr = () => new Date().toISOString().slice(0, 10);
+const currentMesKey = () => todayStr().slice(0, 7);
+const mesLabel = k => { const [y,m] = k.split('-'); return ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(m)-1]+' '+y; };
+const uid = () => Date.now() + Math.floor(Math.random()*1000);
+
+function toast(msg, color='var(--green)') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.color = color;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function setSyncStatus(status, txt) {
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot ' + status;
+  document.getElementById('sync-txt').textContent = txt;
+}
+
+// ═══════════════════════════════════════════
+// API CALLS
+// ═══════════════════════════════════════════
+async function apiGet(sheet) {
+  const url = `${API}?sheet=${sheet}&t=${Date.now()}`;
+  const r = await fetch(url, { redirect: 'follow' });
+  const text = await r.text();
+  try { return JSON.parse(text); } catch(e) { return []; }
+}
+
+async function apiPost(body) {
+  const r = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(body),
+    redirect: 'follow'
+  });
+  return r.text();
+}
+
+// ═══════════════════════════════════════════
+// LOAD ALL DATA FROM SHEET
+// ═══════════════════════════════════════════
+async function reloadAllData() {
+  setSyncStatus('loading', 'Sincronizando...');
+  try {
+    const [vars, fijos, tarj, ingresos, inv] = await Promise.all([
+      apiGet('Variables'), apiGet('Fijos'), apiGet('Tarjetas'),
+      apiGet('Ingresos'), apiGet('Inversiones')
+    ]);
+
+    // Variables
+    state.gastosVar = vars.map(r => ({
+      id: r.id, fecha: String(r.fecha).slice(0,10),
+      cat: r.cat, monto: Number(r.monto), comentario: r.comentario || ''
+    }));
+
+    // Fijos → group by mes
+    state.gastosFijos = {};
+    fijos.forEach(r => {
+      const m = String(r.mes);
+      if (!state.gastosFijos[m]) state.gastosFijos[m] = [];
+      state.gastosFijos[m].push({ id: r.id, concepto: r.concepto, monto: Number(r.monto), cat: r.cat });
+    });
+
+    // Tarjetas → group by mes + banco
+    state.tarjetas = {};
+    tarj.forEach(r => {
+      const m = String(r.mes);
+      if (!state.tarjetas[m]) state.tarjetas[m] = { itau: [], bbva: [] };
+      const b = String(r.banco).toLowerCase();
+      if (!state.tarjetas[m][b]) state.tarjetas[m][b] = [];
+      state.tarjetas[m][b].push({ id: r.id, concepto: r.concepto, monto: Number(r.monto), cuotas: r.cuotas || '1/1' });
+    });
+
+    // Ingresos → group by mes
+    state.ingresos = {};
+    ingresos.forEach(r => {
+      const m = String(r.mes);
+      if (!state.ingresos[m]) state.ingresos[m] = [];
+      state.ingresos[m].push({ id: r.id, concepto: r.concepto, monto: Number(r.monto), fecha: String(r.fecha).slice(0,10) });
+    });
+
+    // Inversiones (key-value)
+    inv.forEach(r => {
+      if (r.tipo === 'prex') state.inversiones.prex[r.clave] = Number(r.valor);
+      if (r.tipo === 'ahorro') state.inversiones.ahorro[r.clave] = Number(r.valor);
+      if (r.tipo === 'crypto') {
+        const existing = state.cryptos.find(c => c.id == r.clave);
+        if (!existing) {
+          try { const c = JSON.parse(r.valor); state.cryptos.push(c); } catch(e){}
+        }
+      }
+    });
+
+    setSyncStatus('ok', 'Sincronizado con Google Sheets ✓');
+    refreshCurrentPage();
+  } catch(e) {
+    setSyncStatus('error', 'Error de conexión — revisá internet');
+    console.error(e);
+  }
+}
+
+function getMeses() {
+  const keys = new Set([currentMesKey()]);
+  state.gastosVar.forEach(g => keys.add(mesKey(g.fecha)));
+  Object.keys(state.gastosFijos).forEach(k => keys.add(k));
+  Object.keys(state.ingresos).forEach(k => keys.add(k));
+  Object.keys(state.tarjetas).forEach(k => keys.add(k));
+  return [...keys].sort().reverse();
+}
+
+function populateSelect(id, selected) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const meses = getMeses();
+  sel.innerHTML = meses.map(m => `<option value="${m}"${m===selected?' selected':''}>${mesLabel(m)}</option>`).join('');
+  sel.value = selected;
+}
+
+// ═══════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════
+let currentPage = 'dashboard';
+function showPage(p, el) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-top-btn,.nb-btn').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.querySelectorAll('.nav-top-btn,.nb-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+p+"'")) b.classList.add('active');
+  });
+  currentPage = p;
+  const inits = { dashboard: initDashboard, variables: initGastosVar, fijos: initGastosFijos, tarjetas: initTarjetas, inversiones: initInversiones, ingresos: initIngresos, ajustes: initAjustes };
+  if (inits[p]) inits[p]();
+}
+
+function refreshCurrentPage() {
+  const inits = { dashboard: initDashboard, variables: ()=>renderGastosVar(), fijos: ()=>renderGastosFijos(), tarjetas: ()=>renderTarjetas(), inversiones: initInversiones, ingresos: ()=>renderIngresos() };
+  if (inits[currentPage]) inits[currentPage]();
+}
+
+// ═══════════════════════════════════════════
+// GASTOS VARIABLES
+// ═══════════════════════════════════════════
+function initGastosVar() {
+  populateSelect('gv-mes', currentMesKey());
+  document.getElementById('gv-fecha').value = todayStr();
+  renderGastosVar();
+}
+
+async function addGastoVar() {
+  const fecha = document.getElementById('gv-fecha').value;
+  const cat = document.getElementById('gv-cat').value;
+  const monto = parseFloat(document.getElementById('gv-monto').value);
+  const comentario = document.getElementById('gv-comentario').value;
+  if (!fecha || !monto || monto <= 0) { alert('Completá fecha y monto'); return; }
+  const id = uid();
+  const row = { id, fecha, cat, monto, comentario };
+  state.gastosVar.push(row);
+  document.getElementById('gv-monto').value = '';
+  document.getElementById('gv-comentario').value = '';
+  populateSelect('gv-mes', mesKey(fecha));
+  document.getElementById('gv-mes').value = mesKey(fecha);
+  renderGastosVar();
+  setSyncStatus('loading', 'Guardando...');
+  try {
+    await apiPost({ action: 'append', sheet: 'Variables', data: row });
+    setSyncStatus('ok', 'Guardado ✓');
+    toast('✓ Gasto agregado');
+  } catch(e) { setSyncStatus('error', 'Error al guardar'); toast('Error al guardar', 'var(--red)'); }
+}
+
+async function deleteGastoVar(id) {
+  if (!confirm('¿Eliminar este gasto?')) return;
+  state.gastosVar = state.gastosVar.filter(g => g.id != id);
+  renderGastosVar();
+  setSyncStatus('loading', 'Eliminando...');
+  try {
+    await apiPost({ action: 'delete', sheet: 'Variables', id });
+    setSyncStatus('ok', 'Eliminado ✓');
+  } catch(e) { setSyncStatus('error', 'Error al eliminar'); }
+}
+
+function renderGastosVar() {
+  const mes = document.getElementById('gv-mes')?.value || currentMesKey();
+  const gastos = state.gastosVar.filter(g => mesKey(g.fecha) === mes).sort((a,b) => b.fecha.localeCompare(a.fecha));
+  const cats = {}; gastos.forEach(g => { cats[g.cat] = (cats[g.cat]||0) + g.monto; });
+  const total = Object.values(cats).reduce((a,b)=>a+b,0);
+  const catKeys = Object.keys(cats).sort((a,b) => cats[b]-cats[a]);
+  const rc = document.getElementById('gv-resumen-cats');
+  if (catKeys.length) {
+    rc.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <span style="font-size:12px;color:var(--text2)">Total del mes</span>
+        <span style="font-size:16px;font-weight:600;font-family:'DM Mono',monospace;color:var(--red)">$${fmt(total)}</span>
+      </div>` + catKeys.map((c,i) => {
+        const pct = total > 0 ? cats[c]/total*100 : 0;
+        return `<div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="color:var(--text2)">${c}</span>
+            <span style="font-family:'DM Mono',monospace;color:var(--text)">$${fmt(cats[c])}</span>
+          </div>
+          <div style="height:4px;border-radius:2px;background:var(--bg4)">
+            <div style="height:4px;border-radius:2px;background:${CATS_COLORS[i%CATS_COLORS.length]};width:${pct.toFixed(1)}%"></div>
+          </div>
+        </div>`;
+    }).join('') + '</div>';
+  } else rc.innerHTML = '';
+  const list = document.getElementById('gv-list');
+  if (!gastos.length) { list.innerHTML = '<div class="empty">No hay gastos este mes</div>'; return; }
+  list.innerHTML = gastos.map(g => `
+    <div class="list-row gv-row">
+      <span style="color:var(--text2);font-size:12px">${String(g.fecha).slice(5)}</span>
+      <div><div style="font-size:13px">${g.comentario||g.cat}</div>${g.comentario?`<div style="font-size:11px;color:var(--text3)">${g.cat}</div>`:''}</div>
+      <span style="text-align:right;font-family:'DM Mono',monospace;color:var(--red);font-size:13px">$${fmt(g.monto)}</span>
+      <span style="text-align:right"><button class="btn btn-danger" onclick="deleteGastoVar('${g.id}')">✕</button></span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════
+// GASTOS FIJOS
+// ═══════════════════════════════════════════
+function initGastosFijos() { populateSelect('gf-mes', currentMesKey()); renderGastosFijos(); }
+
+async function addGastoFijo() {
+  const mes = document.getElementById('gf-mes').value;
+  const concepto = document.getElementById('gf-concepto').value.trim();
+  const monto = parseFloat(document.getElementById('gf-monto').value);
+  const cat = document.getElementById('gf-cat').value;
+  if (!concepto || !monto || monto <= 0) { alert('Completá concepto y monto'); return; }
+  const id = uid();
+  if (!state.gastosFijos[mes]) state.gastosFijos[mes] = [];
+  state.gastosFijos[mes].push({ id, concepto, monto, cat });
+  document.getElementById('gf-concepto').value = '';
+  document.getElementById('gf-monto').value = '';
+  renderGastosFijos();
+  setSyncStatus('loading', 'Guardando...');
+  try {
+    await apiPost({ action: 'append', sheet: 'Fijos', data: { id, mes, concepto, monto, cat } });
+    setSyncStatus('ok', 'Guardado ✓'); toast('✓ Ítem agregado');
+  } catch(e) { setSyncStatus('error', 'Error al guardar'); }
+}
+
+async function deleteGastoFijo(mes, id) {
+  if (!confirm('¿Eliminar?')) return;
+  state.gastosFijos[mes] = state.gastosFijos[mes].filter(x => x.id != id);
+  renderGastosFijos();
+  setSyncStatus('loading', 'Eliminando...');
+  try { await apiPost({ action: 'delete', sheet: 'Fijos', id }); setSyncStatus('ok', 'Eliminado ✓'); }
+  catch(e) { setSyncStatus('error', 'Error'); }
+}
+
+function renderGastosFijos() {
+  const mes = document.getElementById('gf-mes')?.value || currentMesKey();
+  const items = state.gastosFijos[mes] || [];
+  const total = items.reduce((a,b) => a+b.monto, 0);
+  const ingMes = (state.ingresos[mes]||[]).reduce((a,b) => a+b.monto, 0);
+  const saldo = ingMes - total;
+  document.getElementById('gf-ing-val').textContent = '$' + fmt(ingMes);
+  document.getElementById('gf-total-val').textContent = '$' + fmt(total);
+  const sv = document.getElementById('gf-saldo-val');
+  sv.textContent = '$' + fmt(saldo);
+  sv.className = 'card-value ' + (saldo >= 0 ? 'green' : 'red');
+  const list = document.getElementById('gf-list');
+  if (!items.length) { list.innerHTML = '<div class="empty">No hay gastos fijos para este mes</div>'; return; }
+  list.innerHTML = items.map(g => `
+    <div class="list-row gf-row">
+      <div><div style="font-size:13px">${g.concepto}</div><div style="font-size:11px;color:var(--text3)">${g.cat}</div></div>
+      <span style="text-align:right;font-family:'DM Mono',monospace;color:var(--amber);font-size:13px">$${fmt(g.monto)}</span>
+      <span style="text-align:right"><button class="btn btn-danger" onclick="deleteGastoFijo('${mes}','${g.id}')">✕</button></span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════
+// TARJETAS
+// ═══════════════════════════════════════════
+function initTarjetas() { populateSelect('tc-mes', currentMesKey()); renderTarjetas(); }
+
+function toggleAddTC(banco) {
+  const f = document.getElementById('add-tc-' + banco);
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+async function addTC(banco) {
+  const mes = document.getElementById('tc-mes').value;
+  const concepto = document.getElementById('tc-'+banco+'-concepto').value.trim();
+  const monto = parseFloat(document.getElementById('tc-'+banco+'-monto').value);
+  const cuotas = document.getElementById('tc-'+banco+'-cuotas').value.trim() || '1/1';
+  if (!concepto || !monto || monto <= 0) { alert('Completá concepto y monto'); return; }
+  const id = uid();
+  if (!state.tarjetas[mes]) state.tarjetas[mes] = { itau: [], bbva: [] };
+  if (!state.tarjetas[mes][banco]) state.tarjetas[mes][banco] = [];
+  state.tarjetas[mes][banco].push({ id, concepto, monto, cuotas });
+  document.getElementById('tc-'+banco+'-concepto').value = '';
+  document.getElementById('tc-'+banco+'-monto').value = '';
+  document.getElementById('tc-'+banco+'-cuotas').value = '';
+  document.getElementById('add-tc-'+banco).style.display = 'none';
+  renderTarjetas();
+  setSyncStatus('loading', 'Guardando...');
+  try {
+    await apiPost({ action: 'append', sheet: 'Tarjetas', data: { id, mes, banco, concepto, monto, cuotas } });
+    setSyncStatus('ok', 'Guardado ✓'); toast('✓ Gasto de tarjeta agregado');
+  } catch(e) { setSyncStatus('error', 'Error al guardar'); }
+}
+
+async function deleteTC(banco, mes, id) {
+  if (!confirm('¿Eliminar?')) return;
+  state.tarjetas[mes][banco] = state.tarjetas[mes][banco].filter(x => x.id != id);
+  renderTarjetas();
+  try { await apiPost({ action: 'delete', sheet: 'Tarjetas', id }); setSyncStatus('ok', 'Eliminado ✓'); }
+  catch(e) { setSyncStatus('error', 'Error'); }
+}
+
+function renderTarjetas() {
+  const mes = document.getElementById('tc-mes')?.value || currentMesKey();
+  const tc = state.tarjetas[mes] || { itau: [], bbva: [] };
+  const itauItems = tc.itau || [], bbvaItems = tc.bbva || [];
+  const totalItau = itauItems.reduce((a,b)=>a+b.monto,0);
+  const totalBbva = bbvaItems.reduce((a,b)=>a+b.monto,0);
+  document.getElementById('tc-itau-total').textContent = '$' + fmt(totalItau);
+  document.getElementById('tc-bbva-total').textContent = '$' + fmt(totalBbva);
+  document.getElementById('tc-summary').innerHTML = `
+    <div class="card"><div class="card-label">Total ITAU</div><div class="card-value amber">$${fmt(totalItau)}</div></div>
+    <div class="card"><div class="card-label">Total BBVA</div><div class="card-value blue">$${fmt(totalBbva)}</div></div>
+    <div class="card"><div class="card-label">Total tarjetas</div><div class="card-value red">$${fmt(totalItau+totalBbva)}</div></div>`;
+  const renderList = (items, banco) => {
+    const list = document.getElementById('tc-'+banco+'-list');
+    if (!items.length) { list.innerHTML = '<div class="empty">Sin movimientos este mes</div>'; return; }
+    list.innerHTML = items.map(g => `
+      <div class="list-row tc-row">
+        <div><div style="font-size:13px">${g.concepto}</div>${g.cuotas&&g.cuotas!=='1/1'?`<div style="font-size:11px;color:var(--text3)">Cuota ${g.cuotas}</div>`:''}</div>
+        <span style="text-align:right;font-family:'DM Mono',monospace;color:var(--amber);font-size:13px">$${fmt(g.monto)}</span>
+        <span style="text-align:right"><button class="btn btn-danger" onclick="deleteTC('${banco}','${mes}','${g.id}')">✕</button></span>
+      </div>`).join('');
+  };
+  renderList(itauItems, 'itau');
+  renderList(bbvaItems, 'bbva');
+}
+
+// ═══════════════════════════════════════════
+// INGRESOS
+// ═══════════════════════════════════════════
+function initIngresos() { populateSelect('ing-mes', currentMesKey()); document.getElementById('ing-fecha').value = todayStr(); renderIngresos(); }
+
+async function addIngreso() {
+  const mes = document.getElementById('ing-mes').value;
+  const concepto = document.getElementById('ing-concepto').value.trim();
+  const monto = parseFloat(document.getElementById('ing-monto').value);
+  const fecha = document.getElementById('ing-fecha').value;
+  if (!concepto || !monto || monto <= 0) { alert('Completá concepto y monto'); return; }
+  const id = uid();
+  if (!state.ingresos[mes]) state.ingresos[mes] = [];
+  state.ingresos[mes].push({ id, concepto, monto, fecha });
+  document.getElementById('ing-concepto').value = '';
+  document.getElementById('ing-monto').value = '';
+  renderIngresos();
+  setSyncStatus('loading', 'Guardando...');
+  try {
+    await apiPost({ action: 'append', sheet: 'Ingresos', data: { id, mes, concepto, monto, fecha } });
+    setSyncStatus('ok', 'Guardado ✓'); toast('✓ Ingreso registrado');
+  } catch(e) { setSyncStatus('error', 'Error al guardar'); }
+}
+
+async function deleteIngreso(mes, id) {
+  if (!confirm('¿Eliminar?')) return;
+  state.ingresos[mes] = state.ingresos[mes].filter(x => x.id != id);
+  renderIngresos();
+  try { await apiPost({ action: 'delete', sheet: 'Ingresos', id }); setSyncStatus('ok', 'Eliminado ✓'); }
+  catch(e) { setSyncStatus('error', 'Error'); }
+}
+
+function renderIngresos() {
+  const mes = document.getElementById('ing-mes')?.value || currentMesKey();
+  const items = (state.ingresos[mes]||[]).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const total = items.reduce((a,b)=>a+b.monto,0);
+  const list = document.getElementById('ing-list');
+  if (!items.length) { list.innerHTML = '<div class="empty">No hay ingresos para este mes</div>'; }
+  else list.innerHTML = items.map(g => `
+    <div class="list-row ing-row">
+      <span style="color:var(--text2);font-size:12px">${String(g.fecha).slice(5)}</span>
+      <span style="font-size:13px">${g.concepto}</span>
+      <span style="text-align:right;font-family:'DM Mono',monospace;color:var(--green);font-size:13px">$${fmt(g.monto)}</span>
+      <span style="text-align:right"><button class="btn btn-danger" onclick="deleteIngreso('${mes}','${g.id}')">✕</button></span>
+    </div>`).join('');
+  document.getElementById('ing-total').innerHTML = total > 0 ? `Total: <span style="color:var(--green)">$${fmt(total)}</span>` : '';
+}
+
+// ═══════════════════════════════════════════
+// INVERSIONES
+// ═══════════════════════════════════════════
+let cryptoPrices = {};
+const COINGECKO_IDS = {BTC:'bitcoin',ETH:'ethereum',SOL:'solana',BNB:'binancecoin',ADA:'cardano',XRP:'ripple',DOGE:'dogecoin',MATIC:'matic-network',AVAX:'avalanche-2',LINK:'chainlink',DOT:'polkadot',NEAR:'near',SUI:'sui',TRX:'tron',TON:'the-open-network'};
+
+async function fetchCryptoPrices() {
+  if (!state.cryptos.length) { renderCryptoGrid(); return; }
+  const ids = state.cryptos.map(c => c.cgId).join(',');
+  try {
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`);
+    if (r.ok) cryptoPrices = await r.json();
+  } catch(e) {}
+  renderCryptoGrid();
+}
+
+function toggleAddCrypto() {
+  const f = document.getElementById('add-crypto-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+async function addCrypto() {
+  const sym = document.getElementById('cry-sym').value.trim().toUpperCase();
+  const qty = parseFloat(document.getElementById('cry-qty').value);
+  const buy = parseFloat(document.getElementById('cry-buy').value) || 0;
+  if (!sym || !qty || qty <= 0) { alert('Completá símbolo y cantidad'); return; }
+  const cgId = COINGECKO_IDS[sym] || sym.toLowerCase();
+  const id = uid();
+  const crypto = { id, sym, qty, buy, cgId };
+  state.cryptos.push(crypto);
+  document.getElementById('cry-sym').value = '';
+  document.getElementById('cry-qty').value = '';
+  document.getElementById('cry-buy').value = '';
+  document.getElementById('add-crypto-form').style.display = 'none';
+  fetchCryptoPrices();
+  try { await apiPost({ action: 'upsert', sheet: 'Inversiones', data: { tipo: 'crypto', clave: id, valor: JSON.stringify(crypto) } }); }
+  catch(e) {}
+}
+
+async function deleteCrypto(id) {
+  if (!confirm('¿Eliminar?')) return;
+  state.cryptos = state.cryptos.filter(c => c.id != id);
+  renderCryptoGrid();
+  try { await apiPost({ action: 'delete', sheet: 'Inversiones', id }); } catch(e) {}
+}
+
+function renderCryptoGrid() {
+  const grid = document.getElementById('crypto-grid');
+  if (!state.cryptos.length) { grid.innerHTML = '<div class="empty">No hay criptos registradas</div>'; return; }
+  let totalUSD = 0;
+  grid.innerHTML = state.cryptos.map((c,i) => {
+    const price = cryptoPrices[c.cgId]?.usd || null;
+    const valor = price ? c.qty * price : null;
+    if (valor) totalUSD += valor;
+    const rend = price && c.buy > 0 ? ((price - c.buy) / c.buy * 100) : null;
+    const col = CATS_COLORS[i % CATS_COLORS.length];
+    return `<div class="crypto-card">
+      <div style="display:flex;justify-content:space-between">
+        <div><div style="font-size:13px;font-weight:600;color:${col}">${c.sym}</div>
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${price?'$'+fmtUSD(price):'—'} USD</div></div>
+        <button class="btn btn-danger" onclick="deleteCrypto('${c.id}')">✕</button>
+      </div>
+      <div style="font-size:18px;font-weight:600;font-family:'DM Mono',monospace;margin-top:8px">${valor?'$'+fmtUSD(valor):'—'} USD</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">${c.qty} ${c.sym}</div>
+      ${rend!==null?`<div style="font-size:11px;margin-top:4px;color:${rend>=0?'var(--green)':'var(--red)'}">${rend>=0?'▲':'▼'} ${Math.abs(rend).toFixed(2)}%</div>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('crypto-total').innerHTML = totalUSD > 0 ? `Total: <span style="color:var(--green);font-family:'DM Mono',monospace">$${fmtUSD(totalUSD)} USD</span>` : '';
+}
+
+async function savePrex() {
+  const prex = {
+    capital: parseFloat(document.getElementById('prex-capital').value) || 0,
+    tasa: parseFloat(document.getElementById('prex-tasa').value) || 0,
+    meses: parseInt(document.getElementById('prex-meses').value) || 1
+  };
+  state.inversiones.prex = prex;
+  renderPrex();
+  try {
+    await Promise.all([
+      apiPost({ action: 'upsert', sheet: 'Inversiones', data: { tipo: 'prex', clave: 'capital', valor: prex.capital } }),
+      apiPost({ action: 'upsert', sheet: 'Inversiones', data: { tipo: 'prex', clave: 'tasa', valor: prex.tasa } }),
+      apiPost({ action: 'upsert', sheet: 'Inversiones', data: { tipo: 'prex', clave: 'meses', valor: prex.meses } })
+    ]);
+  } catch(e) {}
+}
+
+function renderPrex() {
+  const { capital, tasa, meses } = state.inversiones.prex;
+  const acum = capital * Math.pow(1 + tasa/100, meses);
+  document.getElementById('prex-resultado').innerHTML = `
+    <div class="card"><div class="card-label">Capital</div><div class="card-value blue">$${fmt(capital)}</div></div>
+    <div class="card"><div class="card-label">Rendimiento</div><div class="card-value green">+$${fmt(acum-capital)}</div></div>
+    <div class="card"><div class="card-label">Total actual</div><div class="card-value">$${fmt(acum)}</div></div>`;
+}
+
+async function saveAhorro() {
+  const ahorro = {
+    uy: parseFloat(document.getElementById('ahorro-uy').value) || 0,
+    usd: parseFloat(document.getElementById('ahorro-usd').value) || 0
+  };
+  state.inversiones.ahorro = ahorro;
+  document.getElementById('ahorro-total').innerHTML = `$UY: <strong style="color:var(--teal)">${fmt(ahorro.uy)}</strong> &nbsp;·&nbsp; USD: <strong style="color:var(--teal)">${fmtUSD(ahorro.usd)}</strong>`;
+  try {
+    await Promise.all([
+      apiPost({ action: 'upsert', sheet: 'Inversiones', data: { tipo: 'ahorro', clave: 'uy', valor: ahorro.uy } }),
+      apiPost({ action: 'upsert', sheet: 'Inversiones', data: { tipo: 'ahorro', clave: 'usd', valor: ahorro.usd } })
+    ]);
+  } catch(e) {}
+}
+
+function initInversiones() {
+  const { prex, ahorro } = state.inversiones;
+  document.getElementById('prex-capital').value = prex.capital || '';
+  document.getElementById('prex-tasa').value = prex.tasa || '';
+  document.getElementById('prex-meses').value = prex.meses || 1;
+  document.getElementById('ahorro-uy').value = ahorro.uy || '';
+  document.getElementById('ahorro-usd').value = ahorro.usd || '';
+  renderPrex();
+  document.getElementById('ahorro-total').innerHTML = `$UY: <strong style="color:var(--teal)">${fmt(ahorro.uy)}</strong> &nbsp;·&nbsp; USD: <strong style="color:var(--teal)">${fmtUSD(ahorro.usd)}</strong>`;
+  fetchCryptoPrices();
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+let chartCat, chartMes;
+function initDashboard() { populateSelect('dash-mes', currentMesKey()); renderDashboard(); }
+
+function renderDashboard() {
+  const mes = document.getElementById('dash-mes')?.value || currentMesKey();
+  const gastos = state.gastosVar.filter(g => mesKey(g.fecha) === mes);
+  const totalVar = gastos.reduce((a,b)=>a+b.monto,0);
+  const fijos = state.gastosFijos[mes] || [];
+  const totalFijos = fijos.reduce((a,b)=>a+b.monto,0);
+  const tc = state.tarjetas[mes] || { itau:[], bbva:[] };
+  const totalTC = [...(tc.itau||[]),...(tc.bbva||[])].reduce((a,b)=>a+b.monto,0);
+  const ingresos = (state.ingresos[mes]||[]).reduce((a,b)=>a+b.monto,0);
+  const saldo = ingresos - totalVar - totalFijos;
+
+  document.getElementById('dash-cards').innerHTML = `
+    <div class="card"><div class="card-label">Ingresos</div><div class="card-value green">$${fmt(ingresos)}</div></div>
+    <div class="card"><div class="card-label">Gastos fijos</div><div class="card-value amber">$${fmt(totalFijos)}</div></div>
+    <div class="card"><div class="card-label">Variables</div><div class="card-value red">$${fmt(totalVar)}</div></div>
+    <div class="card"><div class="card-label">Saldo</div><div class="card-value ${saldo>=0?'green':'red'}">$${fmt(saldo)}</div></div>`;
+
+  const cats = {}; gastos.forEach(g => { cats[g.cat] = (cats[g.cat]||0) + g.monto; });
+  if (chartCat) chartCat.destroy();
+  chartCat = new Chart(document.getElementById('chartCat'), {
+    type: 'doughnut',
+    data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: CATS_COLORS.slice(0, Object.keys(cats).length), borderWidth: 0 }] },
+    options: { plugins: { legend: { position: 'right', labels: { color: '#8b91a8', font: { size: 11 }, boxWidth: 10 } } }, maintainAspectRatio: true }
+  });
+
+  const meses = getMeses().slice(0, 6).reverse();
+  if (chartMes) chartMes.destroy();
+  chartMes = new Chart(document.getElementById('chartMes'), {
+    type: 'bar',
+    data: { labels: meses.map(m=>mesLabel(m)), datasets: [
+      { label: 'Ingresos', data: meses.map(m=>(state.ingresos[m]||[]).reduce((a,b)=>a+b.monto,0)), backgroundColor: '#22c77a44', borderColor: '#22c77a', borderWidth: 1.5 },
+      { label: 'Fijos', data: meses.map(m=>(state.gastosFijos[m]||[]).reduce((a,b)=>a+b.monto,0)), backgroundColor: '#f0a84444', borderColor: '#f0a844', borderWidth: 1.5 },
+      { label: 'Variables', data: meses.map(m=>state.gastosVar.filter(g=>mesKey(g.fecha)===m).reduce((a,b)=>a+b.monto,0)), backgroundColor: '#f04f5544', borderColor: '#f04f55', borderWidth: 1.5 }
+    ]},
+    options: { plugins: { legend: { labels: { color: '#8b91a8', font: { size: 11 }, boxWidth: 10 } } }, scales: { x: { ticks: { color: '#8b91a8' }, grid: { color: '#2e3450' } }, y: { ticks: { color: '#8b91a8' }, grid: { color: '#2e3450' } } }, maintainAspectRatio: true }
+  });
+
+  const listaFijos = document.getElementById('dash-fijos-lista');
+  if (!fijos.length) { listaFijos.innerHTML = '<div style="color:var(--text3);font-size:13px">No hay gastos fijos para este mes</div>'; }
+  else {
+    listaFijos.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">` +
+    fijos.map(f => `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 10px;font-size:12px;display:flex;gap:6px;align-items:center">
+      <span>${f.concepto}</span>
+      <span style="font-family:'DM Mono',monospace;color:var(--amber)">$${fmt(f.monto)}</span>
+    </div>`).join('') +
+    `</div><div style="font-size:12px;color:var(--text3)">Total: <span style="color:var(--amber)">$${fmt(totalFijos)}</span></div>`;
+  }
+}
+
+// ═══════════════════════════════════════════
+// AJUSTES
+// ═══════════════════════════════════════════
+function initAjustes() {
+  const y = new Date().getFullYear();
+  const sel = document.getElementById('nuevo-mes-anio');
+  sel.innerHTML = [y-1,y,y+1].map(yr=>`<option value="${yr}">${yr}</option>`).join('');
+  sel.value = y;
+  document.getElementById('nuevo-mes-mes').value = currentMesKey().slice(5);
+}
+
+function crearMes() {
+  const anio = document.getElementById('nuevo-mes-anio').value;
+  const mes = document.getElementById('nuevo-mes-mes').value;
+  const key = `${anio}-${mes}`;
+  if (!state.gastosFijos[key]) state.gastosFijos[key] = [];
+  if (!state.ingresos[key]) state.ingresos[key] = [];
+  const msg = document.getElementById('nuevo-mes-msg');
+  msg.innerHTML = `<span style="color:var(--green)">✓ Mes ${mesLabel(key)} disponible en todos los selectores.</span>`;
+  setTimeout(() => msg.innerHTML = '', 3000);
+}
+
+// ═══════════════════════════════════════════
+// MIGRATE SEED DATA TO SHEET
+// ═══════════════════════════════════════════
+async function migrarDatosSeed() {
+  // Only runs if sheet is empty
+  const existing = await apiGet('Variables');
+  if (existing.length > 0) return; // ya tiene datos
+
+  setSyncStatus('loading', 'Cargando datos históricos...');
+
+  const varMarzo=[{id:1700000000000,fecha:"2026-03-29",cat:"Alimentación",monto:413,comentario:"Devoto"},{id:1700000001000,fecha:"2026-03-28",cat:"Juntada amigos",monto:350,comentario:"Pizza en lo de Fran"},{id:1700000002000,fecha:"2026-03-27",cat:"Alimentación",monto:300,comentario:"Super 5"},{id:1700000003000,fecha:"2026-03-26",cat:"Transporte",monto:476,comentario:"COT (vuelta mvd)"},{id:1700000004000,fecha:"2026-03-26",cat:"Transporte",monto:500,comentario:"Cargar STM"},{id:1700000005000,fecha:"2026-03-26",cat:"Comer afuera",monto:305,comentario:"Almuerzo con Kevin"},{id:1700000006000,fecha:"2026-03-24",cat:"Alimentación",monto:193,comentario:"Fresh Market"},{id:1700000007000,fecha:"2026-03-22",cat:"Cena/Sofi",monto:1370,comentario:"Cervezas (Cosquín)"},{id:1700000008000,fecha:"2026-03-22",cat:"Cena/Sofi",monto:256,comentario:"Empanadas Bocatti (Cosquín)"},{id:1700000009000,fecha:"2026-03-22",cat:"Transporte",monto:790,comentario:"Copsa ida y vuelta Cosquín"},{id:1700000010000,fecha:"2026-03-21",cat:"Alimentación",monto:325,comentario:"Devoto"},{id:1700000011000,fecha:"2026-03-20",cat:"Cena/Sofi",monto:481,comentario:"Empanadas calentitas"},{id:1700000012000,fecha:"2026-03-19",cat:"Alimentación",monto:125,comentario:"Comida en Facultad"},{id:1700000013000,fecha:"2026-03-19",cat:"Auto",monto:100,comentario:"Estacionamiento nocturno"},{id:1700000014000,fecha:"2026-03-19",cat:"Auto",monto:200,comentario:"Estacionamiento Tarifado"},{id:1700000015000,fecha:"2026-03-18",cat:"Auto",monto:350,comentario:"Auto Lavado"},{id:1700000016000,fecha:"2026-03-18",cat:"Alimentación",monto:64,comentario:"El Dorado"},{id:1700000017000,fecha:"2026-03-18",cat:"Barbería",monto:541,comentario:"JM Barbería"},{id:1700000018000,fecha:"2026-03-15",cat:"Ocio",monto:500,comentario:"Casino (Franco)"},{id:1700000019000,fecha:"2026-03-15",cat:"Comer afuera",monto:150,comentario:"Helado Mc (Franco)"},{id:1700000020000,fecha:"2026-03-13",cat:"Juntada amigos",monto:545,comentario:"Fiesta Cerveza"},{id:1700000021000,fecha:"2026-03-13",cat:"Alimentación",monto:371,comentario:"El Dorado (abuela)"},{id:1700000022000,fecha:"2026-03-12",cat:"Alimentación",monto:203,comentario:"El Dorado"},{id:1700000023000,fecha:"2026-03-12",cat:"Alimentación",monto:315,comentario:"Fast Market"},{id:1700000024000,fecha:"2026-03-12",cat:"Alimentación",monto:350,comentario:"La Combi"},{id:1700000025000,fecha:"2026-03-12",cat:"Alimentación",monto:231,comentario:"Super Plaza México"},{id:1700000026000,fecha:"2026-03-09",cat:"Juntada amigos",monto:270,comentario:"Scream 7 con Franco"},{id:1700000027000,fecha:"2026-03-08",cat:"Alimentación",monto:248,comentario:"El Dorado"},{id:1700000028000,fecha:"2026-03-07",cat:"Juntada amigos",monto:440,comentario:"Juntada Charrúas (TorreLobos)"},{id:1700000029000,fecha:"2026-03-06",cat:"Juntada amigos",monto:123,comentario:"Cine (Fran)"},{id:1700000030000,fecha:"2026-03-06",cat:"Comer afuera",monto:499,comentario:"McDonalds (Fran)"},{id:1700000031000,fecha:"2026-03-06",cat:"Auto",monto:2000,comentario:"Nafta"},{id:1700000032000,fecha:"2026-03-05",cat:"Alimentación",monto:257,comentario:"Fast Market"},{id:1700000033000,fecha:"2026-03-04",cat:"Alimentación",monto:473,comentario:"Disco 5"},{id:1700000034000,fecha:"2026-03-02",cat:"Alimentación",monto:177,comentario:"Fast Market"},{id:1700000035000,fecha:"2026-03-02",cat:"Alimentación",monto:943,comentario:"Devoto"},{id:1700000036000,fecha:"2026-03-02",cat:"Comer afuera",monto:1970,comentario:"Almuerzo Piriápolis (Sofi)"},{id:1700000037000,fecha:"2026-03-01",cat:"Juntada amigos",monto:195,comentario:"Clásico (Casa de Paco)"}];
+  const varAbril=[{id:2100000000000,fecha:"2026-04-10",cat:"Juntada amigos",monto:226,comentario:"Picada Peñarol Santa Fe"},{id:2100000001000,fecha:"2026-04-09",cat:"Ocio",monto:790,comentario:"Entrada Peñarol - Platense CDS"},{id:2100000002000,fecha:"2026-04-09",cat:"Transporte",monto:250,comentario:"Carnet ANETRA"},{id:2100000003000,fecha:"2026-04-09",cat:"Alimentación",monto:311,comentario:"Tata almuerzo mvd"},{id:2100000004000,fecha:"2026-04-09",cat:"Transporte",monto:381,comentario:"Copsa vuelta Mvd"},{id:2100000005000,fecha:"2026-04-09",cat:"Otro",monto:491,comentario:"Funda celu mvd"},{id:2100000006000,fecha:"2026-04-08",cat:"Comer afuera",monto:640,comentario:"Almuerzo - Mamá"},{id:2100000007000,fecha:"2026-04-08",cat:"Otro",monto:290,comentario:"Chocolate Sofi"},{id:2100000008000,fecha:"2026-04-08",cat:"Transporte",monto:570,comentario:"STM 20 boletos"},{id:2100000009000,fecha:"2026-04-08",cat:"Transporte",monto:472,comentario:"Copsa ida Mvd"},{id:2100000010000,fecha:"2026-04-08",cat:"Comer afuera",monto:119,comentario:"Cafetería Terminal Maldonado"},{id:2100000011000,fecha:"2026-04-07",cat:"Alimentación",monto:152,comentario:"Supermercado"},{id:2100000012000,fecha:"2026-04-07",cat:"Barbería",monto:541,comentario:"JM Barbería"},{id:2100000013000,fecha:"2026-04-06",cat:"Otro",monto:178,comentario:"Reimpresión Prex UY/AR"},{id:2100000014000,fecha:"2026-04-06",cat:"Otro",monto:1000,comentario:"Transferencia a Mamá"},{id:2100000015000,fecha:"2026-04-04",cat:"Comer afuera",monto:1561,comentario:"Delis (Sofi y amigas)"},{id:2100000016000,fecha:"2026-04-03",cat:"Juntada amigos",monto:618,comentario:"Postre (Sofi - Campo)"},{id:2100000017000,fecha:"2026-04-01",cat:"Otro",monto:350,comentario:"Parrillero con Sofi"},{id:2100000018000,fecha:"2026-04-01",cat:"Cena/Sofi",monto:1120,comentario:"Milanesas (Sofi)"}];
+  const fijosMarzo=[{id:1800000001000,mes:"2026-03",concepto:"Cuota auto",monto:8100,cat:"Auto"},{id:1800000002000,mes:"2026-03",concepto:"Seguro",monto:0,cat:"Auto"},{id:1800000003000,mes:"2026-03",concepto:"Multa",monto:977,cat:"Otro"},{id:1800000004000,mes:"2026-03",concepto:"Alquiler",monto:5000,cat:"Vivienda"},{id:1800000005000,mes:"2026-03",concepto:"Tarjeta crédito (ITAU+BBVA)",monto:21294,cat:"Tarjeta crédito"},{id:1800000006000,mes:"2026-03",concepto:"Antel",monto:894,cat:"Servicios"},{id:1800000007000,mes:"2026-03",concepto:"Luz",monto:2550,cat:"Servicios"},{id:1800000008000,mes:"2026-03",concepto:"Cuota Peñarol",monto:350,cat:"Entretenimiento"}];
+  const fijosAbril=[{id:1800000010000,mes:"2026-04",concepto:"Cuota auto",monto:8100,cat:"Auto"},{id:1800000011000,mes:"2026-04",concepto:"Seguro",monto:0,cat:"Auto"},{id:1800000012000,mes:"2026-04",concepto:"Multa",monto:977,cat:"Otro"},{id:1800000013000,mes:"2026-04",concepto:"Alquiler",monto:5000,cat:"Vivienda"},{id:1800000014000,mes:"2026-04",concepto:"Tarjeta crédito (ITAU+BBVA)",monto:16695,cat:"Tarjeta crédito"},{id:1800000015000,mes:"2026-04",concepto:"Antel",monto:700,cat:"Servicios"},{id:1800000016000,mes:"2026-04",concepto:"Luz",monto:2310,cat:"Servicios"},{id:1800000017000,mes:"2026-04",concepto:"Cuota Peñarol",monto:1020,cat:"Entretenimiento"},{id:1800000018000,mes:"2026-04",concepto:"Mamá",monto:1000,cat:"Otro"}];
+  const tcMarzo=[{id:3100000001000,mes:"2026-03",banco:"itau",concepto:"Viaje (87,5 usd) 9/10",monto:3449,cuotas:"9/10"},{id:3100000002000,mes:"2026-03",banco:"itau",concepto:"Proteína",monto:2351,cuotas:"1/1"},{id:3100000003000,mes:"2026-03",banco:"itau",concepto:"Casa Castilla",monto:842,cuotas:"1/1"},{id:3100000004000,mes:"2026-03",banco:"itau",concepto:"Libros Libros",monto:1211,cuotas:"1/1"},{id:3100000005000,mes:"2026-03",banco:"itau",concepto:"San Roque",monto:438,cuotas:"1/1"},{id:3100000006000,mes:"2026-03",banco:"itau",concepto:"JM Barbería",monto:550,cuotas:"1/1"},{id:3200000001000,mes:"2026-03",banco:"bbva",concepto:"Perfil GYM 9/10",monto:2000,cuotas:"9/10"},{id:3200000002000,mes:"2026-03",banco:"bbva",concepto:"Amora 9/10",monto:516,cuotas:"9/10"},{id:3200000003000,mes:"2026-03",banco:"bbva",concepto:"Préstamo ML 5/5",monto:6088,cuotas:"5/5"},{id:3200000004000,mes:"2026-03",banco:"bbva",concepto:"Seguro y mant. tarjeta",monto:122,cuotas:"1/1"},{id:3200000005000,mes:"2026-03",banco:"bbva",concepto:"100% Artesanal",monto:650,cuotas:"1/1"},{id:3200000006000,mes:"2026-03",banco:"bbva",concepto:"Natal",monto:1582,cuotas:"1/1"},{id:3200000007000,mes:"2026-03",banco:"bbva",concepto:"Classic",monto:1496,cuotas:"1/1"}];
+  const tcAbril=[{id:3100000010000,mes:"2026-04",banco:"itau",concepto:"Viaje (87,5 usd) 10/10",monto:3587,cuotas:"10/10"},{id:3100000011000,mes:"2026-04",banco:"itau",concepto:"El Túnel (CeraVe)",monto:846,cuotas:"1/1"},{id:3100000012000,mes:"2026-04",banco:"itau",concepto:"Nafta (Abril)",monto:3700,cuotas:"1/1"},{id:3100000013000,mes:"2026-04",banco:"itau",concepto:"Super",monto:967,cuotas:"1/1"},{id:3100000014000,mes:"2026-04",banco:"itau",concepto:"Asado 31/3",monto:1886,cuotas:"1/1"},{id:3100000015000,mes:"2026-04",banco:"itau",concepto:"Fast Market",monto:632,cuotas:"1/1"},{id:3100000016000,mes:"2026-04",banco:"itau",concepto:"Peajes (2)",monto:324,cuotas:"1/1"},{id:3200000010000,mes:"2026-04",banco:"bbva",concepto:"Perfil GYM 7/10",monto:2000,cuotas:"7/10"},{id:3200000011000,mes:"2026-04",banco:"bbva",concepto:"Amora 10/10",monto:516,cuotas:"10/10"},{id:3200000012000,mes:"2026-04",banco:"bbva",concepto:"Tata (mensual)",monto:2139,cuotas:"1/1"},{id:3200000013000,mes:"2026-04",banco:"bbva",concepto:"Seguro y mant. tarjeta",monto:98,cuotas:"1/1"}];
+  const ingMarzo=[{id:1900000001000,mes:"2026-03",concepto:"Sueldo Febrero",monto:63576,fecha:"2026-03-01"}];
+
+  // Batch insert all seed rows sequentially
+  const allVars = [...varMarzo, ...varAbril];
+  const allFijos = [...fijosMarzo, ...fijosAbril];
+  const allTC = [...tcMarzo, ...tcAbril];
+
+  for (const row of allVars) await apiPost({ action: 'append', sheet: 'Variables', data: row });
+  for (const row of allFijos) await apiPost({ action: 'append', sheet: 'Fijos', data: row });
+  for (const row of allTC) await apiPost({ action: 'append', sheet: 'Tarjetas', data: row });
+  for (const row of ingMarzo) await apiPost({ action: 'append', sheet: 'Ingresos', data: row });
+
+  setSyncStatus('ok', 'Datos históricos cargados ✓');
+  await reloadAllData();
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+(async function init() {
+  document.querySelectorAll('input[type=date]').forEach(el => { if (!el.value) el.value = todayStr(); });
+  try {
+    await migrarDatosSeed();
+    if (state.gastosVar.length === 0) await reloadAllData();
+  } catch(e) {
+    setSyncStatus('error', 'Sin conexión — verificá internet');
+  }
+  initDashboard();
+})();
+</script>
+</body>
+</html>
